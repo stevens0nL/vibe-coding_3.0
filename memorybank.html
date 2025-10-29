@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Bank Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #ff6b6b;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .exit-btn {
+            background-color: #f44336;
+        }
+        .exit-btn:hover {
+            background-color: #da190b;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .equation-input {
+            margin-bottom: 10px;
+        }
+        .equations-display {
+            text-align: left;
+            margin: 20px 0;
+        }
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+        .incorrect-review {
+            text-align: left;
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <h1>⭐ Welcome to the Memory Bank Game! ⭐</h1>
+        
+        <!-- Menu -->
+        <div v-if="currentView === 'menu'">
+            <p>Choose an option:</p>
+            <button @click="showInputEquations">1.) Input your own 10 equations</button><br>
+            <button @click="generateEquations">2.) Generate 10 basic math equations</button><br>
+            <button @click="showLoad">3.) Practice from a saved file</button>
+        </div>
+        
+        <!-- Input Equations -->
+        <div v-if="currentView === 'input-equations'">
+            <h2>Input 10 equations in the form 'expression = result' (e.g. 2+2=4):</h2>
+            <div v-for="i in 10" :key="i" class="equation-input">
+                Equation #{{ i }}: <input v-model="inputEquations[i-1]" type="text" :placeholder="'e.g. 2+2=4'">
+            </div>
+            <input v-model="saveFilename" type="text" placeholder="Enter filename to save (e.g. my_equations)">
+            <button @click="submitEquations">Submit and Save</button>
+        </div>
+        
+        <!-- Generate Section -->
+        <div v-if="currentView === 'generate-section'">
+            <h2>Generated 10 basic math equations:</h2>
+            <div class="equations-display">
+                <p v-for="(eq, index) in equations" :key="index">{{ index + 1 }}. {{ eq[0] }}</p>
+            </div>
+            <button @click="startPracticeFromGenerate">Start Practice</button>
+        </div>
+        
+        <!-- Load Section -->
+        <div v-if="currentView === 'load-section'">
+            <h2>Enter the filename of the saved equations:</h2>
+            <input v-model="loadFilename" type="text" placeholder="e.g. my_equations">
+            <button @click="loadEquations">Load and Practice</button>
+        </div>
+        
+        <!-- Equations Display -->
+        <div v-if="currentView === 'equations-display'">
+            <h2>Loaded Equations:</h2>
+            <div class="equations-display">
+                <p v-for="(eq, index) in equations" :key="index">{{ index + 1 }}. {{ eq[0] }} = {{ eq[1] }}</p>
+            </div>
+            <button @click="startPracticeFromDisplay">Start Practice</button>
+        </div>
+        
+        <!-- Practice -->
+        <div v-if="currentView === 'practice'">
+            <h2>Let's practice your equations!</h2>
+            <div v-if="currentIndex < equations.length">
+                <p>What is '{{ equations[currentIndex][0] }}'?</p>
+                <input v-model="userAnswer" type="text" placeholder="Your answer">
+                <button @click="submitAnswer">Submit Answer</button>
+                <div v-html="feedback"></div>
+            </div>
+        </div>
+        
+        <!-- Results -->
+        <div v-if="currentView === 'results'">
+            <h2>Practice Results</h2>
+            <div v-html="scoreDisplay"></div>
+            <div v-if="incorrectEquations.length > 0" class="incorrect-review">
+                <h3>Incorrect Questions for Review:</h3>
+                <p v-for="(eq, index) in incorrectEquations" :key="index">{{ index + 1 }}. {{ eq[0] }} = {{ eq[1] }}</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div v-if="showFooter" class="footer">
+            <button class="exit-btn" @click="backToMenu">Exit</button>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    currentView: 'menu',
+                    equations: [],
+                    currentIndex: 0,
+                    score: 0,
+                    incorrectEquations: [],
+                    inputEquations: Array(10).fill(''),
+                    saveFilename: '',
+                    loadFilename: '',
+                    userAnswer: '',
+                    feedback: '',
+                    scoreDisplay: '',
+                    showFooter: false
+                };
+            },
+            methods: {
+                showInputEquations() {
+                    this.currentView = 'input-equations';
+                    this.showFooter = true;
+                },
+                submitEquations() {
+                    this.equations = [];
+                    let valid = true;
+                    for (let i = 0; i < 10; i++) {
+                        const [correct, expr, ans] = this.isEquationCorrect(this.inputEquations[i]);
+                        if (!correct) {
+                            alert(`Equation #${i+1} is incorrect or invalid. Please try again.`);
+                            valid = false;
+                            break;
+                        }
+                        this.equations.push([expr, ans]);
+                    }
+                    if (valid) {
+                        const filename = this.saveFilename || 'memory_bank';
+                        localStorage.setItem(filename, JSON.stringify(this.equations));
+                        alert(`Equations saved to '${filename}'`);
+                        this.startPractice();
+                    }
+                },
+                generateEquations() {
+                    this.currentView = 'generate-section';
+                    this.showFooter = true;
+                    this.equations = [];
+                    const operations = ['+', '-', '*', '/'];
+                    while (this.equations.length < 10) {
+                        const a = Math.floor(Math.random() * 20) + 1;
+                        let b = Math.floor(Math.random() * 20) + 1;
+                        const op = operations[Math.floor(Math.random() * operations.length)];
+                        if (op === '/') {
+                            b = Math.floor(Math.random() * 20) + 1;
+                            const temp = a;
+                            a = b * temp;
+                        }
+                        const expr = `${a} ${op} ${b}`;
+                        try {
+                            let ans = eval(expr);
+                            if (op === '/') {
+                                ans = Math.round(ans * 100) / 100;
+                            } else {
+                                ans = Math.floor(ans);
+                            }
+                            this.equations.push([expr, ans]);
+                        } catch (e) {
+                            continue;
+                        }
+                    }
+                },
+                startPracticeFromGenerate() {
+                    const filename = 'generated_equations';
+                    localStorage.setItem(filename, JSON.stringify(this.equations));
+                    alert(`Generated equations saved to '${filename}'`);
+                    this.startPractice();
+                },
+                showLoad() {
+                    this.currentView = 'load-section';
+                    this.showFooter = true;
+                },
+                loadEquations() {
+                    if (!this.loadFilename) {
+                        alert('No filename entered.');
+                        return;
+                    }
+                    const data = localStorage.getItem(this.loadFilename);
+                    if (!data) {
+                        alert(`No saved file named '${this.loadFilename}' found.`);
+                        return;
+                    }
+                    this.equations = JSON.parse(data);
+                    this.displayEquations();
+                },
+                displayEquations() {
+                    this.currentView = 'equations-display';
+                    this.showFooter = true;
+                },
+                startPracticeFromDisplay() {
+                    this.startPractice();
+                },
+                startPractice() {
+                    this.currentView = 'practice';
+                    this.showFooter = true;
+                    this.currentIndex = 0;
+                    this.score = 0;
+                    this.incorrectEquations = [];
+                    this.feedback = '';
+                },
+                submitAnswer() {
+                    const userAns = parseFloat(this.userAnswer);
+                    const [expr, ans] = this.equations[this.currentIndex];
+                    if (isNaN(userAns)) {
+                        this.feedback = `<p>Invalid input. The correct answer is '${ans}'.</p>`;
+                        this.incorrectEquations.push([expr, ans]);
+                    } else if (Math.abs(userAns - ans) < 0.01) {
+                        this.feedback = '<p>Yippee! You are correct!</p>';
+                        this.score++;
+                    } else {
+                        this.feedback = `<p>Wrong. The correct answer is '${ans}'.</p>`;
+                        this.incorrectEquations.push([expr, ans]);
+                    }
+                    this.currentIndex++;
+                    this.userAnswer = '';
+                    if (this.currentIndex >= this.equations.length) {
+                        setTimeout(() => this.showResults(), 2000);
+                    } else {
+                        setTimeout(() => this.feedback = '', 2000);
+                    }
+                },
+                showResults() {
+                    this.currentView = 'results';
+                    this.showFooter = true;
+                    const total = this.equations.length;
+                    const accuracy = (this.score / total) * 100;
+                    this.scoreDisplay = `Your score: ${this.score} out of ${total} (${accuracy.toFixed(1)}%)`;
+                    if (this.score >= 6) {
+                        this.scoreDisplay += '<br>Congratulations! You passed the practice. 🎉';
+                    } else {
+                        this.scoreDisplay += '<br>Embarrassing... you scored less than 6. Not everyone can be a math wiz. Just keep practicing, bro... 😥';
+                    }
+                    // Save incorrect equations to "practice_equations"
+                    let existingIncorrect = JSON.parse(localStorage.getItem('practice_equations') || '[]');
+                    existingIncorrect = existingIncorrect.concat(this.incorrectEquations);
+                    localStorage.setItem('practice_equations', JSON.stringify(existingIncorrect));
+                },
+                backToMenu() {
+                    this.currentView = 'menu';
+                    this.showFooter = false;
+                    this.equations = [];
+                    this.currentIndex = 0;
+                    this.score = 0;
+                    this.incorrectEquations = [];
+                    this.inputEquations = Array(10).fill('');
+                    this.saveFilename = '';
+                    this.loadFilename = '';
+                    this.userAnswer = '';
+                    this.feedback = '';
+                    this.scoreDisplay = '';
+                },
+                isEquationCorrect(eqStr) {
+                    if (!eqStr.includes('=')) return [false, null, null];
+                    const [left, right] = eqStr.split('=', 2).map(s => s.trim());
+                    try {
+                        const leftVal = eval(left);
+                        const rightVal = eval(right);
+                        return [leftVal === rightVal, left, rightVal];
+                    } catch (e) {
+                        return [false, null, null];
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
