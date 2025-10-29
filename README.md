@@ -22,10 +22,11 @@ Chose one game/tool:
 - [ ] Created `attempt1.html` and tested in browser
 - [ ] Iterated with AI to fix bugs or improve functionality
 - [ ] Created new versions (e.g., `attempt2.html`, `attempt3.html`, etc.)
+
 - [ ] Documented each attempt:
-  - [ ] What I asked the AI to change
-  - [ ] Whether it worked
-  - [ ] What I learned
+    - What I asked the AI to change
+    - Whether it worked
+    - What I learned
 
 ### Step 4: Make It Yours
 - [ ] Customized styling (colors, layout, etc.)
@@ -89,10 +90,8 @@ Chose one game/tool:
 
 - [ ] Opened CSC-113 GitHub repository
 - [ ] Clicked “Add file” → “Upload files”
-- [ ] Dragged `vibe-coding-[yourname]` folder into GitHub
+- [ ] Dragged `vibe-coding_3.0` folder into GitHub
 - [ ] Added commit message: `Complete vibe coding assignment`
-- [ ] Clicked “Commit changes”
 
 ---
 
-🎉 You're done! Great job exploring how to vibe with AI and code creatively.
