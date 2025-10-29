@@ -14,41 +14,41 @@ Chose one game/tool:
   - [X] My own idea (MemoryBank.py)
 
 ### Step 2: First Prompt
-- [ ] Prompted AI with:  
+- [X] Prompted AI with:  
   `"Build me a complete, working [game] that runs in a web browser. Make it a single HTML file that I can just open and use. Include all the JavaScript and CSS needed."`
-- [ ] Saved this prompt for documentation
+- [X] Saved this prompt for documentation
 
 ### Step 3: Test & Iterate
-- [ ] Created `attempt1.html` and tested in browser
-- [ ] Iterated with AI to fix bugs or improve functionality
-- [ ] Created new versions (e.g., `attempt2.html`, `attempt3.html`, etc.)
+- [X] Created `attempt1.html` and tested in browser
+- [x] Iterated with AI to fix bugs or improve functionality
+- [x] Created new versions (e.g., `attempt2.html`, `attempt3.html`, etc.)
 
-- [ ] Documented each attempt:
+- [x] Documented each attempt:
     - What I asked the AI to change
     - Whether it worked
     - What I learned
 
 ### Step 4: Make It Yours
 - [ ] Customized styling (colors, layout, etc.)
-- [ ] Added at least one new feature (e.g., score tracking)
-- [ ] Improved instructions or error messages
-- [ ] Final version is user-friendly and complete
+- [x] Added at least one new feature (e.g., score tracking)
+- [x] Improved instructions or error messages
+- [x] Final version is user-friendly and complete
 
 ---
 
 ## PART 2: The Framework Experiment (1–2 hours)
 
 ### Step 1: Ask the AI About SPAs
-- [ ] Asked AI:
+- [X] Asked AI:
   - What is a Single Page Application?
   - What frameworks are commonly used?
   - Which one is best for my game and why?
-- [ ] Took notes on AI’s recommendation
+- [X] Took notes on AI’s recommendation
 
 ### Step 2: The Framework Challenge
-- [ ] Prompted AI to rebuild game using chosen framework
-- [ ] Saved and tested the SPA version
-- [ ] Noted what was different about using the framework
+- [X] Prompted AI to rebuild game using chosen framework
+- [X] Saved and tested the SPA version
+- [X] Noted what was different about using the framework
 
 ### Step 3: Experience the Difference
 - [ ] Reflected on:
@@ -56,7 +56,7 @@ Chose one game/tool:
   - What was more powerful or more complex
 
 ### Step 4: Get It Working (Or Don’t!)
-- [ ] Tried to get SPA version working
+- [X] Tried to get SPA version working
 - [ ] Documented what worked or what got in the way
 
 ---
@@ -64,25 +64,25 @@ Chose one game/tool:
 ## PART 3: Reflection & Submission (30–45 minutes)
 
 ### Create Submission Folder
-- [ ] Created folder: `vibe-coding-[yourname]`
+- [X] Created folder: `vibe-coding-[yourname]`
 
 ### Required File 1: PROMPTS.md
-- [ ] Documented at least 5 key prompts
-  - [ ] What I asked
-  - [ ] What worked
-  - [ ] What didn’t work
-  - [ ] What I learned
+- [X] Documented at least 4 key prompts
+  - [X] What I asked
+  - [X] What worked
+  - [X] What didn’t work
+  - [X] What I learned
 
 ### Required File 2: Best Working Version
-- [ ] Included `[gamename]-final.html`
-- [ ] If SPA version worked, included `spa-version/` folder with all files
+- [X] Included `[gamename]-final.html`
+- [X] If SPA version worked, included `spa-version/` folder with all files
 
 ### Required File 3: REFLECTION.md
-- [ ] Answered all 4 reflection sections:
-  - [ ] The AI as Collaborator
-  - [ ] The Framework Experiment
-  - [ ] The “Vibe Coding Ceiling”
-  - [ ] Growth Moment
+- [X] Answered all 4 reflection sections:
+  - [X] The AI as Collaborator
+  - [X] The Framework Experiment
+  - [X] The “Vibe Coding Ceiling”
+  - [X] Growth Moment
 
 ---
 
@@ -90,7 +90,7 @@ Chose one game/tool:
 
 - [ ] Opened CSC-113 GitHub repository
 - [ ] Clicked “Add file” → “Upload files”
-- [ ] Dragged `vibe-coding_3.0` folder into GitHub
+- [X] Dragged `vibe-coding_3.0` folder into GitHub
 - [ ] Added commit message: `Complete vibe coding assignment`
 
 ---
