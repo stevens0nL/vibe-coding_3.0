@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Bank Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #ff6b6b;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+        .equation-input {
+            margin-bottom: 10px;
+        }
+        .practice {
+            text-align: left;
+        }
+        .score {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .equations-display {
+            text-align: left;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⭐ Welcome to the Memory Bank Game! ⭐</h1>
+        <div id="menu">
+            <p>Choose an option:</p>
+            <button onclick="showInputEquations()">1.) Input your own 10 equations</button><br>
+            <button onclick="generateEquations()">2.) Generate 10 basic math equations</button><br>
+            <button onclick="showLoad()">3.) Practice from a saved file</button><br>
+            <button onclick="exitGame()">4.) Exit</button>
+        </div>
+        <div id="input-equations" class="hidden">
+            <h2>Input 10 equations in the form 'expression = result' (e.g. 2+2=4):</h2>
+            <div id="equations-list"></div>
+            <input type="text" id="save-filename" placeholder="Enter filename to save (e.g. my_equations)">
+            <button onclick="submitEquations()">Submit and Save</button>
+            <button onclick="backToMenu()">Back to Menu</button>
+        </div>
+        <div id="generate-section" class="hidden">
+            <h2>Generating 10 basic math equations...</h2>
+            <div id="generated-list"></div>
+            <button onclick="saveGenerated()">Save and Practice</button>
+            <button onclick="backToMenu()">Back to Menu</button>
+        </div>
+        <div id="load-section" class="hidden">
+            <h2>Enter the filename of the saved equations:</h2>
+            <input type="text" id="load-filename" placeholder="e.g. my_equations">
+            <button onclick="loadEquations()">Load and Practice</button>
+            <button onclick="backToMenu()">Back to Menu</button>
+        </div>
+        <div id="equations-display" class="hidden">
+            <h2>Loaded Equations:</h2>
+            <div id="display-list" class="equations-display"></div>
+            <button onclick="startPracticeFromDisplay()">Start Practice</button>
+            <button onclick="backToMenu()">Back to Menu</button>
+        </div>
+        <div id="practice" class="hidden">
+            <h2>Let's practice your equations!</h2>
+            <div id="question"></div>
+            <input type="text" id="answer" placeholder="Your answer">
+            <button onclick="submitAnswer()">Submit Answer</button>
+            <div id="feedback"></div>
+        </div>
+        <div id="results" class="hidden">
+            <h2>Practice Results</h2>
+            <div id="score-display"></div>
+            <button onclick="backToMenu()">Back to Menu</button>
+        </div>
+    </div>
+
+    <script>
+        let equations = [];
+        let currentIndex = 0;
+        let score = 0;
+
+        function showInputEquations() {
+            hideAllSections();
+            document.getElementById('input-equations').classList.remove('hidden');
+            const list = document.getElementById('equations-list');
+            list.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                list.innerHTML += `<div class="equation-input">Equation #${i+1}: <input type="text" id="eq${i}" placeholder="e.g. 2+2=4"></div>`;
+            }
+        }
+
+        function submitEquations() {
+            equations = [];
+            let valid = true;
+            for (let i = 0; i < 10; i++) {
+                const eq = document.getElementById(`eq${i}`).value;
+                const [correct, expr, ans] = isEquationCorrect(eq);
+                if (!correct) {
+                    alert(`Equation #${i+1} is incorrect or invalid. Please try again.`);
+                    valid = false;
+                    break;
+                }
+                equations.push([expr, ans]);
+            }
+            if (valid) {
+                const filename = document.getElementById('save-filename').value || 'memory_bank';
+                localStorage.setItem(filename, JSON.stringify(equations));
+                alert(`Equations saved to '${filename}'`);
+                startPractice();
+            }
+        }
+
+        function generateEquations() {
+            hideAllSections();
+            document.getElementById('generate-section').classList.remove('hidden');
+            equations = [];
+            const operations = ['+', '-', '*', '/'];
+            const list = document.getElementById('generated-list');
+            list.innerHTML = '';
+            while (equations.length < 10) {
+                const a = Math.floor(Math.random() * 20) + 1;
+                let b = Math.floor(Math.random() * 20) + 1;
+                const op = operations[Math.floor(Math.random() * operations.length)];
+                if (op === '/') {
+                    b = Math.floor(Math.random() * 20) + 1;
+                    const temp = a;
+                    a = b * temp;
+                }
+                const expr = `${a} ${op} ${b}`;
+                try {
+                    let ans = eval(expr);
+                    if (op === '/') {
+                        ans = Math.round(ans * 100) / 100;
+                    } else {
+                        ans = Math.floor(ans);
+                    }
+                    equations.push([expr, ans]);
+                    list.innerHTML += `<p>${expr}</p>`;  // Show only expression, not answer
+                } catch (e) {
+                    continue;
+                }
+            }
+        }
+
+        function saveGenerated() {
+            const filename = 'generated_equations';
+            localStorage.setItem(filename, JSON.stringify(equations));
+            alert(`Generated equations saved to '${filename}'`);
+            startPractice();
+        }
+
+        function showLoad() {
+            hideAllSections();
+            document.getElementById('load-section').classList.remove('hidden');
+        }
+
+        function loadEquations() {
+            const filename = document.getElementById('load-filename').value;
+            if (!filename) {
+                alert('No filename entered.');
+                return;
+            }
+            const data = localStorage.getItem(filename);
+            if (!data) {
+                alert(`No saved file named '${filename}' found.`);
+                return;
+            }
+            equations = JSON.parse(data);
+            displayEquations();
+        }
+
+        function displayEquations() {
+            hideAllSections();
+            document.getElementById('equations-display').classList.remove('hidden');
+            const list = document.getElementById('display-list');
+            list.innerHTML = '';
+            equations.forEach(([expr, ans], index) => {
+                list.innerHTML += `<p>${index + 1}. ${expr} = ${ans}</p>`;
+            });
+        }
+
+        function startPracticeFromDisplay() {
+            startPractice();
+        }
+
+        function startPractice() {
+            hideAllSections();
+            document.getElementById('practice').classList.remove('hidden');
+            currentIndex = 0;
+            score = 0;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentIndex >= equations.length) {
+                showResults();
+                return;
+            }
+            const [expr, ans] = equations[currentIndex];
+            document.getElementById('question').innerHTML = `<p>What is '${expr}'?</p>`;
+            document.getElementById('answer').value = '';
+            document.getElementById('feedback').innerHTML = '';
+        }
+
+        function submitAnswer() {
+            const userAns = parseFloat(document.getElementById('answer').value);
+            const [expr, ans] = equations[currentIndex];
+            if (isNaN(userAns)) {
+                document.getElementById('feedback').innerHTML = `<p>Invalid input. The correct answer is '${ans}'.</p>`;
+            } else if (Math.abs(userAns - ans) < 0.01) {
+                document.getElementById('feedback').innerHTML = '<p>Yippee! You are correct!</p>';
+                score++;
+            } else {
+                document.getElementById('feedback').innerHTML = `<p>Wrong. The correct answer is '${ans}'.</p>`;
+            }
+            currentIndex++;
+            setTimeout(showQuestion, 2000);
+        }
+
+        function showResults() {
+            hideAllSections();
+            document.getElementById('results').classList.remove('hidden');
+            const total = equations.length;
+            const accuracy = (score / total) * 100;
+            let message = `Your score: ${score} out of ${total} (${accuracy.toFixed(1)}%)`;
+            if (score >= 6) {
+                message += '<br>Congratulations! You passed the practice. 🎉';
+            } else {
+                message += '<br>Embarrassing... you scored less than 6. Not everyone can be a math wiz. Just keep practicing, bro... 😥';
+            }
+            document.getElementById('score-display').innerHTML = message;
+        }
+
+        function backToMenu() {
+            hideAllSections();
+            document.getElementById('menu').classList.remove('hidden');
+        }
+
+        function exitGame() {
+            alert('Goodbye!');
+            window.close();
+        }
+
+        function hideAllSections() {
+            const sections = ['menu', 'input-equations', 'generate-section', 'load-section', 'equations-display', 'practice', 'results'];
+            sections.forEach(id => document.getElementById(id).classList.add('hidden'));
+        }
+
+        function isEquationCorrect(eqStr) {
+            if (!eqStr.includes('=')) return [false, null, null];
+            const [left, right] = eqStr.split('=', 2).map(s => s.trim());
+            try {
+                const leftVal = eval(left);
+                const rightVal = eval(right);
+                return [leftVal === rightVal, left, rightVal];
+            } catch (e) {
+                return [false, null, null];
+            }
+        }
+    </script>
+</body>
+</html>
