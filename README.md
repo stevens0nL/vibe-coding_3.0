@@ -6,7 +6,7 @@ This assignment teaches you to work with AI to build something functional quickl
 ## PART 1: The AI’s Choice (2–3 hours)
 
 ### Step 1: Pick Your Game
-- [ ] Chose one game/tool:
+Chose one game/tool:
   - [ ] Tic-Tac-Toe
   - [ ] Dice Game (Craps)
   - [ ] Number Guessing Game
